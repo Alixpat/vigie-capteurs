@@ -54,22 +54,14 @@ def ping(host: str, count: int = 3, timeout: int = 2) -> bool:
         return False
 
 
-def build_message(machine_name: str, host: str, is_up: bool) -> dict:
+def build_message(hostname: str, ip: str, is_up: bool) -> dict:
     """Construit un message au format Vigie."""
-    if is_up:
-        return {
-            "type": "info",
-            "title": f"{machine_name}",
-            "message": f"{host} est en ligne",
-            "priority": "normal",
-        }
-    else:
-        return {
-            "type": "alert",
-            "title": f"{machine_name}",
-            "message": f"{host} ne répond pas",
-            "priority": "high",
-        }
+    return {
+        "type": "lan_status",
+        "hostname": hostname,
+        "ip": ip,
+        "status": "up" if is_up else "down",
+    }
 
 
 def connect_mqtt(cfg: dict) -> mqtt.Client:
@@ -104,19 +96,18 @@ def main():
     try:
         while running:
             for machine in machines:
-                name = machine["name"]
-                host = machine["host"]
+                hostname = machine["hostname"]
+                ip = machine["ip"]
 
                 is_up = ping(
-                    host,
+                    ip,
                     count=ping_cfg.get("count", 3),
                     timeout=ping_cfg.get("timeout_seconds", 2),
                 )
-                status = "UP" if is_up else "DOWN"
-                log.info("%s (%s) : %s", name, host, status)
+                log.info("%s (%s) : %s", hostname, ip, "up" if is_up else "down")
 
-                message = build_message(name, host, is_up)
-                topic = f"{topic_prefix}/{host}"
+                message = build_message(hostname, ip, is_up)
+                topic = f"{topic_prefix}/{hostname}"
                 client.publish(topic, json.dumps(message), qos=1)
 
             # Attente interruptible

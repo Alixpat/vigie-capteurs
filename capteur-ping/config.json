@@ -13,16 +13,16 @@
   },
   "machines": [
     {
-      "name": "Serveur Web",
-      "host": "192.168.1.10"
+      "hostname": "serveur-web",
+      "ip": "192.168.1.10"
     },
     {
-      "name": "Serveur BDD",
-      "host": "192.168.1.11"
+      "hostname": "serveur-bdd",
+      "ip": "192.168.1.11"
     },
     {
-      "name": "NAS",
-      "host": "192.168.1.20"
+      "hostname": "nas",
+      "ip": "192.168.1.20"
     }
   ]
 }

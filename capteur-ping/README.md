@@ -15,7 +15,7 @@ pip install -r requirements.txt
 
 - **mqtt** : adresse du broker, port, identifiants optionnels, préfixe de topic
 - **ping** : intervalle entre les cycles (secondes), timeout et nombre de pings
-- **machines** : liste des machines à surveiller (`name` + `host`)
+- **machines** : liste des machines à surveiller (`hostname` + `ip`)
 
 ## Lancement
 
@@ -29,16 +29,16 @@ Le capteur tourne en boucle et publie un message MQTT par machine à chaque cycl
 
 ## Messages publiés
 
-Topic : `vigie/ping/<ip>` (par défaut)
+Topic : `vigie/ping/<hostname>` (par défaut)
 
 Machine en ligne :
 ```json
-{"type": "info", "title": "Serveur Web", "message": "192.168.1.10 est en ligne", "priority": "normal"}
+{"type": "lan_status", "hostname": "serveur-web", "ip": "192.168.1.10", "status": "up"}
 ```
 
 Machine hors ligne :
 ```json
-{"type": "alert", "title": "Serveur Web", "message": "192.168.1.10 ne répond pas", "priority": "high"}
+{"type": "lan_status", "hostname": "serveur-web", "ip": "192.168.1.10", "status": "down"}
 ```
 
 ## Arrêt
