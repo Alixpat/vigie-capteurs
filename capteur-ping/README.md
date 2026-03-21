@@ -46,20 +46,10 @@ Machine hors ligne :
 
 ## Déploiement en service systemd
 
+Le script `install.sh` détecte automatiquement le répertoire courant, crée le venv si nécessaire, et installe le service :
+
 ```bash
-# Copier les fichiers
-sudo mkdir -p /opt/vigie/capteur-ping
-sudo cp -r . /opt/vigie/capteur-ping/
-
-# Créer le venv sur place
-cd /opt/vigie/capteur-ping
-sudo python3 -m venv venv
-sudo venv/bin/pip install -r requirements.txt
-
-# Installer et démarrer le service
-sudo cp capteur-ping.service /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable --now capteur-ping
+sudo ./install.sh
 ```
 
 ```bash
