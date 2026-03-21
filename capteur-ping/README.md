@@ -6,6 +6,8 @@ Capteur de disponibilité réseau pour **Vigie**. Il ping une liste de machines 
 
 ```bash
 cd capteur-ping
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 
@@ -20,6 +22,7 @@ pip install -r requirements.txt
 ## Lancement
 
 ```bash
+source venv/bin/activate
 python3 capteur_ping.py
 # ou avec un fichier de config custom
 python3 capteur_ping.py /chemin/vers/config.json
