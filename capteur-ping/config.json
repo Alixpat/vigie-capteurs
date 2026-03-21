@@ -1,0 +1,28 @@
+{
+  "mqtt": {
+    "broker": "192.168.1.100",
+    "port": 1883,
+    "username": "",
+    "password": "",
+    "topic_prefix": "vigie/ping"
+  },
+  "ping": {
+    "interval_seconds": 60,
+    "timeout_seconds": 2,
+    "count": 3
+  },
+  "machines": [
+    {
+      "name": "Serveur Web",
+      "host": "192.168.1.10"
+    },
+    {
+      "name": "Serveur BDD",
+      "host": "192.168.1.11"
+    },
+    {
+      "name": "NAS",
+      "host": "192.168.1.20"
+    }
+  ]
+}
