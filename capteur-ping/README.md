@@ -32,7 +32,7 @@ Le capteur tourne en boucle et publie un message MQTT par machine à chaque cycl
 
 ## Messages publiés
 
-Topic : `vigie/ping/<hostname>` (par défaut)
+Topic : `vigie/lan/<hostname>` (par défaut)
 
 Machine en ligne :
 ```json
@@ -44,6 +44,32 @@ Machine hors ligne :
 {"type": "lan_status", "hostname": "serveur-web", "ip": "192.168.1.10", "status": "down"}
 ```
 
+## Déploiement en service systemd
+
+```bash
+# Copier les fichiers
+sudo mkdir -p /opt/vigie/capteur-ping
+sudo cp -r . /opt/vigie/capteur-ping/
+
+# Créer le venv sur place
+cd /opt/vigie/capteur-ping
+sudo python3 -m venv venv
+sudo venv/bin/pip install -r requirements.txt
+
+# Installer et démarrer le service
+sudo cp capteur-ping.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now capteur-ping
+```
+
+```bash
+# Vérifier le statut
+sudo systemctl status capteur-ping
+
+# Voir les logs
+sudo journalctl -u capteur-ping -f
+```
+
 ## Arrêt
 
-`Ctrl+C` ou `SIGTERM` — le capteur s'arrête proprement.
+`Ctrl+C` en mode manuel, ou `sudo systemctl stop capteur-ping` pour le service.

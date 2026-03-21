@@ -1,0 +1,14 @@
+[Unit]
+Description=Vigie - Capteur Ping LAN
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/vigie/capteur-ping
+ExecStart=/opt/vigie/capteur-ping/venv/bin/python3 capteur_ping.py
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

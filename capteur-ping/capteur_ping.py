@@ -91,7 +91,7 @@ def main():
     )
 
     client = connect_mqtt(mqtt_cfg)
-    topic_prefix = mqtt_cfg.get("topic_prefix", "vigie/ping")
+    topic_prefix = mqtt_cfg.get("topic_prefix", "vigie/lan")
 
     try:
         while running:

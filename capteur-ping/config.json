@@ -4,7 +4,7 @@
     "port": 1883,
     "username": "",
     "password": "",
-    "topic_prefix": "vigie/ping"
+    "topic_prefix": "vigie/lan"
   },
   "ping": {
     "interval_seconds": 60,
