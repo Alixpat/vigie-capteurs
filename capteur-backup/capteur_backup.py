@@ -138,7 +138,11 @@ def analyse_job(job: dict) -> dict:
     age_hours = (now - last_run).total_seconds() / 3600
     if age_hours > expected_hours:
         status = "missing"
-        detail = f"Dernière sauvegarde il y a {age_hours:.0f}h (seuil : {expected_hours}h)"
+        days, hours = divmod(int(age_hours), 24)
+        seuil_days, seuil_hours = divmod(expected_hours, 24)
+        age_str = f"{days}j {hours}h" if days else f"{hours}h"
+        seuil_str = f"{seuil_days}j {seuil_hours}h" if seuil_days else f"{seuil_hours}h"
+        detail = f"Dernière sauvegarde il y a {age_str} (seuil : {seuil_str})"
     elif status == "success":
         detail = "Sauvegarde réussie"
     else:
