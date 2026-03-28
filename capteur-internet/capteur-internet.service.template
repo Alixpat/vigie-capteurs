@@ -1,12 +1,12 @@
 [Unit]
-Description=Vigie - Capteur Backup
+Description=Vigie - Capteur Internet
 After=network-online.target
 Wants=network-online.target
 
 [Service]
 Type=simple
 WorkingDirectory=__WORKING_DIR__
-ExecStart=__WORKING_DIR__/venv/bin/python3 capteur_backup.py /etc/vigie/capteur-backup/config.json
+ExecStart=__WORKING_DIR__/venv/bin/python3 capteur_internet.py /etc/vigie/capteur-internet/config.json
 Restart=on-failure
 RestartSec=10
 

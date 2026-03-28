@@ -108,7 +108,7 @@ def main():
 
                 message = build_message(hostname, ip, is_up)
                 topic = f"{topic_prefix}/{hostname}"
-                client.publish(topic, json.dumps(message), qos=1)
+                client.publish(topic, json.dumps(message), qos=1, retain=True)
 
             # Attente interruptible
             for _ in range(ping_cfg["interval_seconds"]):

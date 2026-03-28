@@ -1,0 +1,20 @@
+{
+  "mqtt": {
+    "broker": "192.168.1.100",
+    "port": 1883,
+    "username": "",
+    "password": "",
+    "topic_prefix": "vigie/internet"
+  },
+  "check_interval_seconds": 60,
+  "targets": [
+    {
+      "name": "google",
+      "host": "8.8.8.8"
+    }
+  ],
+  "ping": {
+    "count": 3,
+    "timeout_seconds": 5
+  }
+}

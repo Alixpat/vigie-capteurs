@@ -191,7 +191,7 @@ def main():
 
                 message = build_message(name, analysis)
                 topic = f"{topic_prefix}/{name}"
-                client.publish(topic, json.dumps(message), qos=1)
+                client.publish(topic, json.dumps(message), qos=1, retain=True)
 
             for _ in range(interval):
                 if not running:

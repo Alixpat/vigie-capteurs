@@ -2,9 +2,9 @@
 set -euo pipefail
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
-CONF_DIR="/etc/vigie/capteur-ping"
+CONF_DIR="/etc/vigie/capteur-internet"
 
-echo "Installation du capteur-ping depuis : $DIR"
+echo "Installation du capteur-internet depuis : $DIR"
 
 # Créer le venv si absent
 if [ ! -d "$DIR/venv" ]; then
@@ -22,13 +22,13 @@ if [ ! -f "$CONF_DIR/config.json" ]; then
 fi
 
 # Générer le fichier service avec le bon chemin
-sed "s|__WORKING_DIR__|$DIR|g" "$DIR/capteur-ping.service.template" \
-    > /etc/systemd/system/capteur-ping.service
+sed "s|__WORKING_DIR__|$DIR|g" "$DIR/capteur-internet.service.template" \
+    > /etc/systemd/system/capteur-internet.service
 
 systemctl daemon-reload
-systemctl enable --now capteur-ping
+systemctl enable --now capteur-internet
 
-echo "Service capteur-ping installé et démarré."
+echo "Service capteur-internet installé et démarré."
 echo "  → Configuration : $CONF_DIR/config.json"
-echo "  → systemctl status capteur-ping"
-echo "  → journalctl -u capteur-ping -f"
+echo "  → systemctl status capteur-internet"
+echo "  → journalctl -u capteur-internet -f"

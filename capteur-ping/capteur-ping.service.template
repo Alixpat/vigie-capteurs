@@ -6,7 +6,7 @@ Wants=network-online.target
 [Service]
 Type=simple
 WorkingDirectory=__WORKING_DIR__
-ExecStart=__WORKING_DIR__/venv/bin/python3 capteur_ping.py
+ExecStart=__WORKING_DIR__/venv/bin/python3 capteur_ping.py /etc/vigie/capteur-ping/config.json
 Restart=on-failure
 RestartSec=10
 
