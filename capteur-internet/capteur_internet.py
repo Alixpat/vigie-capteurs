@@ -12,6 +12,7 @@ import platform
 import time
 import logging
 import signal
+from datetime import datetime, timezone
 
 import paho.mqtt.client as mqtt
 
@@ -71,16 +72,6 @@ def ping_host(host: str, count: int = 3, timeout: int = 5) -> dict:
         return {"reachable": False, "latency_ms": None}
 
 
-def build_message(name: str, host: str, ping_result: dict) -> dict:
-    return {
-        "type": "internet_status",
-        "name": name,
-        "host": host,
-        "status": "up" if ping_result["reachable"] else "down",
-        "latency_ms": ping_result["latency_ms"],
-    }
-
-
 def main():
     config_path = sys.argv[1] if len(sys.argv) > 1 else "config.json"
     config = load_config(config_path)
@@ -98,11 +89,23 @@ def main():
     client = connect_mqtt(mqtt_cfg)
     topic_prefix = mqtt_cfg.get("topic_prefix", "vigie/internet")
 
+    # État par cible : statut précédent et infos dernière coupure
+    state = {}
+    for target in targets:
+        state[target["name"]] = {
+            "previous_status": None,
+            "downtime_start": None,
+            "last_downtime_start": None,
+            "last_downtime_end": None,
+            "last_downtime_duration_minutes": None,
+        }
+
     try:
         while running:
             for target in targets:
                 name = target["name"]
                 host = target["host"]
+                s = state[name]
 
                 result = ping_host(
                     host,
@@ -110,11 +113,40 @@ def main():
                     timeout=ping_cfg.get("timeout_seconds", 5),
                 )
 
+                now = datetime.now(timezone.utc)
+                is_up = result["reachable"]
+
+                # Détection des transitions d'état
+                if not is_up and s["previous_status"] != "down":
+                    # Début de coupure
+                    s["downtime_start"] = now
+                    log.warning("%s (%s) : COUPURE détectée", name, host)
+                elif is_up and s["previous_status"] == "down" and s["downtime_start"]:
+                    # Fin de coupure
+                    duration = (now - s["downtime_start"]).total_seconds() / 60
+                    s["last_downtime_start"] = s["downtime_start"].isoformat()
+                    s["last_downtime_end"] = now.isoformat()
+                    s["last_downtime_duration_minutes"] = round(duration, 1)
+                    s["downtime_start"] = None
+                    log.info("%s (%s) : connexion rétablie après %.1f min", name, host, duration)
+
+                s["previous_status"] = "up" if is_up else "down"
+
                 latency_str = f"{result['latency_ms']:.1f}ms" if result["latency_ms"] else "N/A"
-                status_str = "up" if result["reachable"] else "down"
+                status_str = "up" if is_up else "down"
                 log.info("%s (%s) : %s — %s", name, host, status_str, latency_str)
 
-                message = build_message(name, host, result)
+                message = {
+                    "type": "internet_status",
+                    "name": name,
+                    "host": host,
+                    "status": status_str,
+                    "latency_ms": result["latency_ms"],
+                    "last_downtime_start": s["last_downtime_start"],
+                    "last_downtime_end": s["last_downtime_end"],
+                    "last_downtime_duration_minutes": s["last_downtime_duration_minutes"],
+                }
+
                 topic = f"{topic_prefix}/{name}"
                 client.publish(topic, json.dumps(message), qos=1, retain=True)
 
