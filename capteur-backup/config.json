@@ -1,0 +1,19 @@
+{
+  "mqtt": {
+    "broker": "192.168.1.100",
+    "port": 1883,
+    "username": "",
+    "password": "",
+    "topic_prefix": "vigie/backup"
+  },
+  "check_interval_seconds": 3600,
+  "jobs": [
+    {
+      "name": "rsync-pidrive",
+      "syslog_tag": "rsync-pidrive",
+      "success_pattern": "terminée avec succès",
+      "failure_pattern": "ERREUR",
+      "expected_every_hours": 192
+    }
+  ]
+}
