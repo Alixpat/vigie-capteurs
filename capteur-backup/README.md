@@ -24,6 +24,35 @@ pip install -r requirements.txt
   - `failure_pattern` : texte présent dans le log en cas d'échec
   - `expected_every_hours` : délai max attendu entre deux sauvegardes (heures)
 
+## Convention syslog pour les scripts de backup
+
+Pour qu'un script de sauvegarde soit détectable par capteur-backup, il doit loguer dans syslog via `logger` en respectant cette convention :
+
+```bash
+TAG="backup-<nom>"
+
+# En début de script
+logger -t "$TAG" "Début de la sauvegarde"
+
+# En cas d'erreur
+logger -t "$TAG" "ERREUR : <description>"
+
+# En cas de succès
+logger -t "$TAG" "Sauvegarde terminée avec succès"
+```
+
+Puis ajouter un job correspondant dans `config.json` :
+
+```json
+{
+  "name": "<nom>",
+  "syslog_tag": "backup-<nom>",
+  "success_pattern": "terminée avec succès",
+  "failure_pattern": "ERREUR",
+  "expected_every_hours": 48
+}
+```
+
 ## Lancement
 
 ```bash
