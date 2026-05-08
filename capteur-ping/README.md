@@ -44,6 +44,8 @@ Machine hors ligne :
 {"type": "lan_status", "hostname": "serveur-web", "ip": "192.168.1.10", "status": "down"}
 ```
 
+Tous les messages sont publiés avec le flag **retain** : le broker conserve le dernier état, ce qui permet de le récupérer même après une reconnexion.
+
 ## Déploiement en service systemd
 
 Le script `install.sh` détecte automatiquement le répertoire courant, crée le venv si nécessaire, et installe le service :

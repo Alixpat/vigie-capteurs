@@ -33,19 +33,48 @@ python3 capteur_internet.py /chemin/vers/config.json
 
 Topic : `vigie/internet/<name>` (par défaut)
 
-Cible joignable :
+Le payload inclut le statut courant ainsi que les informations sur la dernière coupure détectée (depuis le démarrage du capteur). Les champs `last_downtime_*` sont `null` tant qu'aucune coupure n'a été observée.
+
+Cible joignable, aucune coupure depuis le démarrage :
 ```json
-{"type": "internet_status", "name": "google-dns", "host": "8.8.8.8", "status": "up", "latency_ms": 12.5}
+{
+  "type": "internet_status",
+  "name": "google",
+  "host": "8.8.8.8",
+  "status": "up",
+  "latency_ms": 12.5,
+  "last_downtime_start": null,
+  "last_downtime_end": null,
+  "last_downtime_duration_minutes": null
+}
 ```
 
 Cible injoignable :
 ```json
-{"type": "internet_status", "name": "google-dns", "host": "8.8.8.8", "status": "down", "latency_ms": null}
+{
+  "type": "internet_status",
+  "name": "google",
+  "host": "8.8.8.8",
+  "status": "down",
+  "latency_ms": null,
+  "last_downtime_start": null,
+  "last_downtime_end": null,
+  "last_downtime_duration_minutes": null
+}
 ```
 
-Résumé global (topic `vigie/internet/global`) :
+Cible rétablie après une coupure :
 ```json
-{"type": "internet_status", "name": "global", "status": "up"}
+{
+  "type": "internet_status",
+  "name": "google",
+  "host": "8.8.8.8",
+  "status": "up",
+  "latency_ms": 12.5,
+  "last_downtime_start": "2026-05-08T09:12:03+00:00",
+  "last_downtime_end": "2026-05-08T09:18:45+00:00",
+  "last_downtime_duration_minutes": 6.7
+}
 ```
 
 Tous les messages sont publiés avec le flag **retain** : le broker conserve le dernier état, ce qui permet de le récupérer même après une reconnexion.
