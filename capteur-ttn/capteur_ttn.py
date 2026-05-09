@@ -48,14 +48,16 @@ def best_gateway(rx_metadata: list) -> dict:
 def transform_uplink(raw: dict, devices_map: dict) -> dict:
     """Convertit un uplink TTN brut en message Vigie sensor_status.
 
-    devices_map : {dev_eui_uppercase_no_dashes: human_name}
-    Fallback sur device_id si l'EUI n'est pas mappé.
+    devices_map : {dev_eui_uppercase_no_dashes: {"name": str, "kind": Optional[str]}}
+    Fallback sur device_id si l'EUI n'est pas mappé. kind reste None si non précisé.
     """
     end_device_ids = raw.get("end_device_ids", {})
     device_id = end_device_ids.get("device_id", "")
     dev_eui = (end_device_ids.get("dev_eui") or "").upper()
 
-    name = devices_map.get(dev_eui, device_id)
+    entry = devices_map.get(dev_eui, {})
+    name = entry.get("name") or device_id
+    kind = entry.get("kind")
 
     uplink = raw.get("uplink_message", {})
     decoded = uplink.get("decoded_payload")
@@ -71,6 +73,7 @@ def transform_uplink(raw: dict, devices_map: dict) -> dict:
         "type": "sensor_status",
         "emetteur": socket.gethostname(),
         "name": name,
+        "kind": kind,
         "device_id": device_id,
         "decoded": decoded,
         "rssi": rssi,
@@ -79,6 +82,27 @@ def transform_uplink(raw: dict, devices_map: dict) -> dict:
         "battery_percent": battery_percent,
         "received_at": raw.get("received_at"),
     }
+
+
+def normalize_devices(raw_devices: dict) -> dict:
+    """Normalise le mapping config.devices en {EUI: {name, kind}}.
+
+    Accepte deux formes par device :
+      - "EUI": "porte-entree"                          (rétrocompatible, kind=None)
+      - "EUI": {"name": "porte-entree", "kind": "door"}
+    Les EUI sont mis en majuscules et débarrassés des tirets pour matcher
+    indifféremment les variantes (`a8-40-...` ou `A84041...`).
+    """
+    out = {}
+    for eui, value in (raw_devices or {}).items():
+        key = eui.upper().replace("-", "")
+        if isinstance(value, str):
+            out[key] = {"name": value, "kind": None}
+        elif isinstance(value, dict):
+            out[key] = {"name": value.get("name"), "kind": value.get("kind")}
+        else:
+            log.warning("devices.%s ignoré (type non supporté : %s)", eui, type(value).__name__)
+    return out
 
 
 def make_on_message(topic_prefix: str, devices_map: dict):
@@ -141,11 +165,7 @@ def main():
     source_topic = config.get("source_topic", "ttn/devices/+/up")
     topic_prefix = mqtt_cfg.get("topic_prefix", "vigie/sensors")
 
-    # Normalise les clés du mapping en EUI majuscules sans tirets
-    devices_map = {
-        eui.upper().replace("-", ""): name
-        for eui, name in (config.get("devices") or {}).items()
-    }
+    devices_map = normalize_devices(config.get("devices") or {})
 
     log.info(
         "Démarrage — broker=%s:%d, source=%s, prefix=%s, %d device(s) mappé(s)",

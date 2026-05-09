@@ -8,6 +8,6 @@
   },
   "source_topic": "ttn/devices/+/up",
   "devices": {
-    "A84041FFB184F8F4": "porte-entree"
+    "A84041FFB184F8F4": {"name": "porte-entree", "kind": "door"}
   }
 }
