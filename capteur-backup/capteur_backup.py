@@ -5,6 +5,7 @@ et publie leur statut sur un broker MQTT au format Vigie.
 """
 
 import json
+import socket
 import subprocess
 import sys
 import time
@@ -39,7 +40,7 @@ def load_config(path: str) -> dict:
 
 
 def connect_mqtt(cfg: dict) -> mqtt.Client:
-    client = mqtt.Client(client_id="capteur-backup", clean_session=True)
+    client = mqtt.Client(client_id=f"capteur-backup-{socket.gethostname()}", clean_session=True)
     if cfg.get("username"):
         client.username_pw_set(cfg["username"], cfg.get("password", ""))
     client.connect(cfg["broker"], cfg["port"], keepalive=60)
@@ -158,6 +159,7 @@ def analyse_job(job: dict) -> dict:
 def build_message(job_name: str, analysis: dict) -> dict:
     return {
         "type": "backup_status",
+        "emetteur": socket.gethostname(),
         "job": job_name,
         "status": analysis["status"],
         "detail": analysis["detail"],

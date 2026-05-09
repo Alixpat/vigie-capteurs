@@ -6,6 +6,7 @@ des cibles externes et publie le statut sur un broker MQTT au format Vigie.
 
 import json
 import re
+import socket
 import subprocess
 import sys
 import platform
@@ -41,7 +42,7 @@ def load_config(path: str) -> dict:
 
 
 def connect_mqtt(cfg: dict) -> mqtt.Client:
-    client = mqtt.Client(client_id="capteur-internet", clean_session=True)
+    client = mqtt.Client(client_id=f"capteur-internet-{socket.gethostname()}", clean_session=True)
     if cfg.get("username"):
         client.username_pw_set(cfg["username"], cfg.get("password", ""))
     client.connect(cfg["broker"], cfg["port"], keepalive=60)
@@ -138,6 +139,7 @@ def main():
 
                 message = {
                     "type": "internet_status",
+                    "emetteur": socket.gethostname(),
                     "name": name,
                     "host": host,
                     "status": status_str,

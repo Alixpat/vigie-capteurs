@@ -5,6 +5,7 @@ et publie leur statut sur un broker MQTT au format Vigie.
 """
 
 import json
+import socket
 import subprocess
 import sys
 import platform
@@ -58,6 +59,7 @@ def build_message(hostname: str, ip: str, is_up: bool) -> dict:
     """Construit un message au format Vigie."""
     return {
         "type": "lan_status",
+        "emetteur": socket.gethostname(),
         "hostname": hostname,
         "ip": ip,
         "status": "up" if is_up else "down",
@@ -66,7 +68,7 @@ def build_message(hostname: str, ip: str, is_up: bool) -> dict:
 
 def connect_mqtt(cfg: dict) -> mqtt.Client:
     """Crée et connecte un client MQTT."""
-    client = mqtt.Client(client_id="capteur-ping", clean_session=True)
+    client = mqtt.Client(client_id=f"capteur-ping-{socket.gethostname()}", clean_session=True)
     if cfg.get("username"):
         client.username_pw_set(cfg["username"], cfg.get("password", ""))
     client.connect(cfg["broker"], cfg["port"], keepalive=60)
