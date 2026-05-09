@@ -48,8 +48,8 @@ def best_gateway(rx_metadata: list) -> dict:
 def transform_uplink(raw: dict, devices_map: dict) -> dict:
     """Convertit un uplink TTN brut en message Vigie sensor_status.
 
-    devices_map : {dev_eui_uppercase_no_dashes: {"name": str, "kind": Optional[str]}}
-    Fallback sur device_id si l'EUI n'est pas mappé. kind reste None si non précisé.
+    devices_map : {dev_eui_uppercase_no_dashes: {"name": str, "kind": Optional[str], "alarm": bool}}
+    Fallback sur device_id si l'EUI n'est pas mappé. kind=None et alarm=False si non précisés.
     """
     end_device_ids = raw.get("end_device_ids", {})
     device_id = end_device_ids.get("device_id", "")
@@ -58,6 +58,7 @@ def transform_uplink(raw: dict, devices_map: dict) -> dict:
     entry = devices_map.get(dev_eui, {})
     name = entry.get("name") or device_id
     kind = entry.get("kind")
+    alarm = bool(entry.get("alarm", False))
 
     uplink = raw.get("uplink_message", {})
     decoded = uplink.get("decoded_payload")
@@ -74,6 +75,7 @@ def transform_uplink(raw: dict, devices_map: dict) -> dict:
         "emetteur": socket.gethostname(),
         "name": name,
         "kind": kind,
+        "alarm": alarm,
         "device_id": device_id,
         "decoded": decoded,
         "rssi": rssi,
@@ -85,11 +87,17 @@ def transform_uplink(raw: dict, devices_map: dict) -> dict:
 
 
 def normalize_devices(raw_devices: dict) -> dict:
-    """Normalise le mapping config.devices en {EUI: {name, kind}}.
+    """Normalise le mapping config.devices en {EUI: {name, kind, alarm}}.
 
     Accepte deux formes par device :
-      - "EUI": "porte-entree"                          (rétrocompatible, kind=None)
-      - "EUI": {"name": "porte-entree", "kind": "door"}
+      - "EUI": "porte-entree"                                          (rétrocompatible)
+      - "EUI": {"name": "porte-entree", "kind": "door", "alarm": true}
+
+    `kind` est libre (utilisé côté consommateur pour choisir un rendu).
+    `alarm` (bool, default False) est un drapeau : si True, le consommateur
+    Vigie peut décider de notifier sur les transitions vers l'état "actif"
+    de ce capteur (ex: porte ouverte, présence détectée).
+
     Les EUI sont mis en majuscules et débarrassés des tirets pour matcher
     indifféremment les variantes (`a8-40-...` ou `A84041...`).
     """
@@ -97,9 +105,13 @@ def normalize_devices(raw_devices: dict) -> dict:
     for eui, value in (raw_devices or {}).items():
         key = eui.upper().replace("-", "")
         if isinstance(value, str):
-            out[key] = {"name": value, "kind": None}
+            out[key] = {"name": value, "kind": None, "alarm": False}
         elif isinstance(value, dict):
-            out[key] = {"name": value.get("name"), "kind": value.get("kind")}
+            out[key] = {
+                "name": value.get("name"),
+                "kind": value.get("kind"),
+                "alarm": bool(value.get("alarm", False)),
+            }
         else:
             log.warning("devices.%s ignoré (type non supporté : %s)", eui, type(value).__name__)
     return out

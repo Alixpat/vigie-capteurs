@@ -24,10 +24,14 @@ pip install -r requirements.txt
 - **mqtt** : adresse du broker, port, identifiants optionnels, préfixe de topic de sortie
 - **source_topic** : pattern d'abonnement aux uplinks bruts (défaut `ttn/devices/+/up`)
 - **devices** : mapping `dev_eui → infos device`. Les EUI sont normalisés en majuscules sans tirets, donc `"A84041FFB184F8F4"` ou `"a8-40-41-ff-b1-84-f8-f4"` sont équivalents. Deux formats acceptés par device :
-  - Forme courte (kind absent) : `"EUI": "porte-entree"`
-  - Forme complète : `"EUI": {"name": "porte-entree", "kind": "door"}`
+  - Forme courte : `"EUI": "porte-entree"` (kind=null, alarm=false)
+  - Forme complète : `"EUI": {"name": "porte-entree", "kind": "door", "alarm": true}`
 
-  Le champ `kind` (optionnel) sert au consommateur Vigie côté Android pour choisir un rendu adapté au type de capteur (ex. `door`, `temperature`, `motion`). Si un device n'est pas mappé du tout, le `device_id` TTN est utilisé comme nom (ex. `eui-a84041ffb184f8f4`) et `kind` reste `null` (rendu générique côté app).
+  Champs optionnels :
+  - `kind` (string) : utilisé par le consommateur Vigie pour choisir un rendu adapté (ex. `door`, `temperature`, `motion`).
+  - `alarm` (bool, default `false`) : si `true`, l'app Android Vigie déclenche une notification système quand ce capteur passe à l'état "actif" (porte ouverte pour `kind=door`, présence pour `kind=motion`), à condition que le toggle alarme soit activé dans l'app.
+
+  Si un device n'est pas mappé du tout, le `device_id` TTN est utilisé comme nom (ex. `eui-a84041ffb184f8f4`), `kind` reste `null` et `alarm` reste `false`.
 
 ## Lancement
 
@@ -52,6 +56,7 @@ Exemple pour un Dragino LDS02 (capteur de porte) :
   "emetteur": "pidesk",
   "name": "porte-entree",
   "kind": "door",
+  "alarm": true,
   "device_id": "eui-a84041ffb184f8f4",
   "decoded": {
     "ALARM": 0,
