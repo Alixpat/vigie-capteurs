@@ -1,0 +1,15 @@
+[Unit]
+Description=Vigie - Capteur TTN
+After=network-online.target mosquitto.service
+Wants=network-online.target
+Requires=mosquitto.service
+
+[Service]
+Type=simple
+WorkingDirectory=__WORKING_DIR__
+ExecStart=__WORKING_DIR__/venv/bin/python3 capteur_ttn.py /etc/vigie/capteur-ttn/config.json
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

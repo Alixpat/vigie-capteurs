@@ -1,0 +1,13 @@
+{
+  "mqtt": {
+    "broker": "127.0.0.1",
+    "port": 1883,
+    "username": "alex",
+    "password": "alex",
+    "topic_prefix": "vigie/sensors"
+  },
+  "source_topic": "ttn/devices/+/up",
+  "devices": {
+    "A84041FFB184F8F4": "porte-entree"
+  }
+}
