@@ -8,6 +8,7 @@
   },
   "source_topic": "ttn/devices/+/up",
   "devices": {
-    "A84041FFB184F8F4": {"name": "porte-entree", "kind": "door"}
+    "A84041FFB184F8F4": {"name": "porte-debarras", "kind": "door"},
+    "00137A1000001CEA": {"name": "entree-appartement", "kind": "motion"}
   }
 }
