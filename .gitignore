@@ -1,3 +1,6 @@
 venv/
 __pycache__/
 *.pyc
+
+# Configs locales (le repo ne versionne que les config.example.json)
+capteur-ping/config.json
