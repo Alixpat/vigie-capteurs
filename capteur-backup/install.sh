@@ -17,7 +17,7 @@ fi
 if [ ! -f "$CONF_DIR/config.json" ]; then
     echo "Copie de la configuration vers $CONF_DIR"
     mkdir -p "$CONF_DIR"
-    cp "$DIR/config.json" "$CONF_DIR/config.json"
+    cp "$DIR/config.example.json" "$CONF_DIR/config.json"
     echo "  → Pensez à éditer $CONF_DIR/config.json avec vos paramètres"
 fi
 

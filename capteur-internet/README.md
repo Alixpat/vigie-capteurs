@@ -13,7 +13,9 @@ pip install -r requirements.txt
 
 ## Configuration
 
-Éditer `config.json` :
+Le repo versionne uniquement `config.example.json` (template). La config réelle vit dans `/etc/vigie/capteur-internet/config.json` sur la machine et n'est pas committée — `install.sh` la crée à partir du template au premier déploiement, à éditer ensuite avec les vrais paramètres.
+
+Champs :
 
 - **mqtt** : adresse du broker, port, identifiants optionnels, préfixe de topic
 - **check_interval_seconds** : intervalle entre les vérifications (secondes)
